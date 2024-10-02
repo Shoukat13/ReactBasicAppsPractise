@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel ="stylesheet" type = "text/css" href = "cmt.css">
+    <title>React App</title>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      let customers = [];
+      const capacity = 25;
+      let seatsLeft = 25;
+      let countRef =React.createRef();
+      let nameRef = React.createRef();
+      let phoneRef = React.createRef();
+
+      // Create form submit handler here
+      function handleClick(event){
+        event.preventDefault();
+        const guestCount = parseInt(countRef.current.value, 10); // Get the number of guests
+  if (guestCount > seatsLeft) {
+    alert("Guest count exceeds capacity.");
+    countRef.current.value = '';
+    nameRef.current.value = '';
+    phoneRef.current.value = '';
+    return; // Stop further execution if guest count exceeds seats left
+  }
+        const currentTime = new Date().toLocaleTimeString();
+      	customers.push({
+            Count:countRef.current.value, 
+            Name: nameRef.current.value, 
+            Phone: phoneRef.current.value, 
+            CheckIn: currentTime
+        })
+        seatsLeft = seatsLeft - countRef.current.value;
+        
+        rootElement.render(<App />);
+        countRef.current.value = '';
+        nameRef.current.value = '';
+        phoneRef.current.value = '';
+      }
+      function onRemove(index) {
+        // Get the count of guests to be removed
+        const removedGuests = parseInt(customers[index].Count, 10);
+
+        seatsLeft = Math.min(seatsLeft + removedGuests, capacity);
+
+        // Remove the guest from the array
+        customers.splice(index, 1);
+
+        // Re-render the app
+        rootElement.render(<App />);
+      }
+
+      const App = () => (
+        <div className="App" style={{ textAlign: "center" }}>
+          <div>
+            <h2>Total Capacity:{capacity} </h2>
+            <h2>Seats Left: {seatsLeft}</h2>
+          </div>
+
+          {/* Create a form here for the input count, name and phone number with a submit button*/}
+          <form>
+          	<input ref = {countRef} type ="number" placeholder = "Guests Count"/>
+            <input ref = {nameRef} placeholder = "Primary Guest Name"/>
+            <input ref = {phoneRef} placeholder = "Phone Number"/>
+            <button onClick = {handleClick}>Add Entry</button>
+          </form>
+
+          <table border="1px" style={{ margin: "auto" }}>
+            <thead>
+              <tr>
+                <th>Count</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Check In</th>
+                <th>Remove Entry</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Complete table to show records of customers */}
+              {customers.map((guest, index) => <tr key = {index}>
+        			<td>{guest.Count}</td>
+                    <td>{guest.Name}</td>
+                    <td>{guest.Phone}</td>
+                    <td>{guest.CheckIn}</td>
+                    <td><button onClick ={() =>onRemove(index)}>Remove</button></td>
+        		</tr>)}
+            </tbody>
+            </table>
+        </div>
+      );
+
+      const rootElement = ReactDOM.createRoot(document.getElementById("root"));
+      rootElement.render(<App />);
+    </script>
+
+  </body>
+</html>
